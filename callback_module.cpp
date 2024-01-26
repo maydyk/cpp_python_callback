@@ -1,11 +1,9 @@
-#include <boost/python.hpp>
-
 #include <memory>
 #include <iostream>
 
-namespace py = boost::python;
-
+// Simulate our library
 namespace library {
+    // Callback pure interface
     class Callback{
     public:
         virtual ~Callback() {
@@ -15,6 +13,7 @@ namespace library {
         virtual void onProgress(int progress) = 0;
     };
 
+    // Some library class who gets and stores callback instance
     class Library {
         std::shared_ptr<Callback> callback;
     public:
@@ -24,16 +23,19 @@ namespace library {
         }
 
         ~Library() {
+            // Ligrary is free!
             std::cout << "~Library() destructed!" << std::endl;
         }
 
         void func() {
+            // Use callback
             if (callback != nullptr) {
                 callback->onProgress(66);
             }
         }
     };
 
+    // Show module is unloaded.
     struct Lifecycle {
         ~Lifecycle() {
             std::cout << "Lifecycle has terminated." << std::endl;
@@ -43,7 +45,12 @@ namespace library {
     Lifecycle lc;
 }
 
+#include <boost/python.hpp>
+
+namespace py = boost::python;
+
 namespace {
+    // Python wrapper for callback
     struct CallbackWrapper
         : library::Callback
         , py::wrapper<library::Callback>
@@ -53,6 +60,7 @@ namespace {
             }
         };
 
+    // Special testing callback
     struct CallbackWrapperTest
         : library::Callback
         , py::wrapper<library::Callback>
@@ -61,24 +69,24 @@ namespace {
                 std::cout << "TEST: onProgress(" << progress << ")" << std::endl;
             }
         };
-}
 
+    // Creation finctuon
     std::shared_ptr<library::Library> createLibrary(std::shared_ptr<library::Callback> callback) {
-        // std::shared_ptr<CallbackWrapper> cb = std::shared_ptr<CallbackWrapper>(&callback, [](auto*) {} );
         return std::make_shared<library::Library>(callback);
     }
+}
 
 
 BOOST_PYTHON_MODULE(callback) {
     py::class_<library::Library, boost::noncopyable>(
         "Library",
         py::no_init
-        // py::init<CallbackWrapper*>()[py::with_custodian_and_ward<1,2>()]
         )
         .def("__init__", py::make_constructor(&createLibrary))
         .def("func", &library::Library::func)
         ;
     
     py::class_<CallbackWrapper, boost::noncopyable>("Callback");
+
     py::class_<CallbackWrapperTest, boost::noncopyable>("CallbackTest");
 }
