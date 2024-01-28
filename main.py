@@ -7,10 +7,10 @@ class PyCallback(callback.Callback):
     def onProgress(self, progress):
         print("PY onProgress", progress)
 
-# cb = PyCallback()
+cb = PyCallback()
 
 # Replacing by this works fine but useless
-cb = callback.CallbackTest()
+# cb = callback.CallbackTest()
 
 lib = callback.Library(cb)
 
