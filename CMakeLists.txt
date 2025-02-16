@@ -8,15 +8,21 @@ project(callbask-test)
 add_compile_options(-g -O0)
 
 # Setup Python
-find_package(Python3 REQUIRED COMPONENTS Development NumPy)
-find_package(Boost REQUIRED COMPONENTS python3 numpy)
+find_package(Python3 REQUIRED COMPONENTS Development)
+find_package(Boost REQUIRED COMPONENTS python3)
 
 
 add_library(callback MODULE callback_module.cpp)
 set_target_properties(callback PROPERTIES
     PREFIX "${PYTHON_MODULE_PREFIX}"
-    SUFFIX ".pyd"
 )
+ 
+# Setup file extensiton for Windows
+if ($WIN32)
+    add_target_properties(callback PROPERTIES
+        SUFFIX ".pyd"
+    )
+endif()
 
 target_include_directories(callback
     PRIVATE ${Python3_INCLUDE_DIRS}
