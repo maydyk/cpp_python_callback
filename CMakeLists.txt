@@ -1,6 +1,6 @@
 # version 3.11 or later of CMake or needed later for installing GoogleTest
 # so let's require it now.
-cmake_minimum_required(VERSION 3.11-3.18)
+cmake_minimum_required(VERSION 3.12-3.28)
 
 project(callbask-test)
 
@@ -8,7 +8,7 @@ project(callbask-test)
 add_compile_options(-g -O0)
 
 # Setup Python
-find_package(Python3 REQUIRED COMPONENTS Development)
+find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
 find_package(Boost REQUIRED COMPONENTS python3)
 
 
@@ -18,7 +18,7 @@ set_target_properties(callback PROPERTIES
 )
  
 # Setup file extensiton for Windows
-if ($WIN32)
+if (WIN32)
     add_target_properties(callback PROPERTIES
         SUFFIX ".pyd"
     )
@@ -35,4 +35,19 @@ target_link_libraries(callback
 
 target_compile_features(callback PUBLIC cxx_std_20)
 
+# Define Python user package site
+execute_process(COMMAND python -m site --user-site OUTPUT_VARIABLE Python_UserSitePackage OUTPUT_STRIP_TRAILING_WHITESPACE)
 
+# Install module to user package site
+add_custom_command(TARGET callback POST_BUILD
+    COMMAND "${CMAKE_COMMAND}" -E copy 
+    "$<TARGET_FILE:callback>"
+    "${Python_UserSitePackage}/$<TARGET_FILE_NAME:callback>"
+)
+
+# Generate Python interface file in user package site
+add_custom_command(TARGET callback POST_BUILD
+     COMMAND stubgen --include-docstrings -o "${Python_UserSitePackage}" -m $<TARGET_FILE_BASE_NAME:callback>
+     WORKING_DIRECTORY $<TARGET_FILE_DIR:callback>
+ )
+  

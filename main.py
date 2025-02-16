@@ -1,7 +1,5 @@
 #!python3
 
-import sys
-sys.path.append(r"build")
 import callback
 
 class PyCallback(callback.Callback):
@@ -13,7 +11,6 @@ cb = PyCallback()
 
 # Replacing by this works fine but useless
 # cb = callback.CallbackTest()
-
 lib = callback.Library(cb)
 
 lib.func()
