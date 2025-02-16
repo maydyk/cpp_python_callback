@@ -38,16 +38,16 @@ target_compile_features(callback PUBLIC cxx_std_20)
 # Define Python user package site
 execute_process(COMMAND python -m site --user-site OUTPUT_VARIABLE Python_UserSitePackage OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-# Install module to user package site
+# Install module to the user package site
 add_custom_command(TARGET callback POST_BUILD
-    COMMAND "${CMAKE_COMMAND}" -E copy 
-    "$<TARGET_FILE:callback>"
+    COMMAND ${CMAKE_COMMAND} -E copy 
+    $<TARGET_FILE:callback>
     "${Python_UserSitePackage}/$<TARGET_FILE_NAME:callback>"
 )
 
-# Generate Python interface file in user package site
+# Generate Python interface file in the user package site
 add_custom_command(TARGET callback POST_BUILD
-     COMMAND stubgen --include-docstrings -o "${Python_UserSitePackage}" -m $<TARGET_FILE_BASE_NAME:callback>
+     COMMAND stubgen --include-docstrings -o ${Python_UserSitePackage} -m $<TARGET_FILE_BASE_NAME:callback>
      WORKING_DIRECTORY $<TARGET_FILE_DIR:callback>
  )
   
