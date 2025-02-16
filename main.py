@@ -1,5 +1,7 @@
+#!python3
+
 import sys
-sys.path.append(r"./build")
+sys.path.append(r"build")
 import callback
 
 class PyCallback(callback.Callback):
